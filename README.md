@@ -70,6 +70,16 @@ npm install
 npm run dev
 ```
 
+### Environment Variables
+
+Create a `.env` file in the root (see `.env.example`):
+
+```
+SUPABASE_URL=(https://mhcsftjvevsdvkpoanct.supabase.co)
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oY3NmdGp2ZXZzZHZrcG9hbmN0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODE2NTQyNSwiZXhwIjoyMDkzNzQxNDI1fQ.RrkcliD6M1nquN2OaVjZenHOw-zVeKJjT136osQDS-o
+ANTHROPIC_API_KEY=AIzaSyAO6x3zv7MHMFg8vXHEszQrxOZ8c5mfFjE
+```
+
 ---
 
 ## Database Tables
@@ -82,6 +92,8 @@ npm run dev
 | `assignments` | Doctor assigned to each patient |
 
 ---
+
+
 
 ## Current Limitations (MVP)
 
