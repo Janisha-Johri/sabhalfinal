@@ -102,6 +102,4 @@ GROQ_API_KEY=AIzaSyAO6x3zv7MHMFg8vXHEszQrxOZ8c5mfFjE
 - Limited training dataset for AI model
 - No offline mode
 
----
 
-Built for the AI4India Hackathon, powered by HopeWorks.
