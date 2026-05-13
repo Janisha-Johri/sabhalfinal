@@ -1,140 +1,95 @@
-# 🏥 Sabhal — AI Healthcare App
+# SabHal 🏥
 
-> Hackathon-ready AI healthcare platform powered by Gemini AI, Supabase, React, and FastAPI.
+An AI-powered healthcare platform that connects patients, doctors, and nurses through a unified digital system — reducing fragmented records, delayed diagnoses, and coordination gaps in healthcare.
 
 ---
 
-## 🗂 Project Structure
+## What it does
+
+- Patients input symptoms; these are summarised into key insights for doctors
+- AI suggests possible diagnoses, recommended tests, and treatment options
+- Cases are prioritised by urgency (Critical → High → Moderate)
+- All medical staff share a single, unified patient record in real time
+- Doctors retain final decision authority — AI outputs are always labelled as suggestions
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React (Vite) |
+| Backend | FastAPI (Python) |
+| Database | Supabase (PostgreSQL) |
+| Auth | JWT + RBAC |
+| AI/ML | scikit-learn / HuggingFace |
+| Deployment | Render / Railway (backend), Vercel (frontend) |
+
+---
+
+## Project Structure
 
 ```
-sabhal/
-├── frontend/          # React + Vite + Tailwind
-├── backend/           # FastAPI + Gemini AI
-└── supabase/          # SQL schema
+/
+├── backend/
+│   ├── venv/          # Python virtual environment (not tracked)
+│   ├── main.py        # FastAPI entry point
+│   └── ...
+├── frontend/
+│   ├── src/
+│   └── ...
+├── .env               # Environment variables (not tracked)
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-## ⚡ Quick Start
+## Getting Started
 
-### 1. Supabase Setup
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- Supabase account
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** and run the contents of `supabase/schema.sql`
-3. Copy your **Project URL** and **anon key** from Settings → API
-
----
-
-### 2. Backend Setup
+### Backend
 
 ```bash
 cd backend
-
-# Install dependencies
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Create .env from example
-cp .env.example .env
-# Edit .env and add your keys:
-#   GEMINI_API_KEY=...
-#   SUPABASE_URL=...
-#   SUPABASE_SERVICE_KEY=...  ← use the service_role key
-
-# Run the server
-python main.py
-# → Running at http://localhost:8000
+uvicorn main:app --reload
 ```
 
-**Get your Gemini API key:** [aistudio.google.com](https://aistudio.google.com/app/apikey)
-
----
-
-### 3. Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Create .env from example
-cp .env.example .env
-# Edit .env and add:
-#   VITE_SUPABASE_URL=...
-#   VITE_SUPABASE_ANON_KEY=...  ← use the anon key
-#   VITE_API_URL=http://localhost:8000
-
-# Run the dev server
 npm run dev
-# → Running at http://localhost:5173
 ```
 
 ---
 
-## 🔑 Environment Variables
+## Database Tables
 
-### Backend (`backend/.env`)
-| Variable | Description |
+| Table | Description |
 |---|---|
-| `GEMINI_API_KEY` | Google Gemini API key |
-| `SUPABASE_URL` | Your Supabase project URL |
-| `SUPABASE_SERVICE_KEY` | Supabase **service_role** secret key |
-| `PORT` | Server port (default: 8000) |
-| `ALLOWED_ORIGINS` | Comma-separated frontend URLs |
-
-### Frontend (`frontend/.env`)
-| Variable | Description |
-|---|---|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Supabase **anon** public key |
-| `VITE_API_URL` | Backend URL (default: http://localhost:8000) |
+| `users` | Patients, doctors, and nurses |
+| `visits` | Patient visit records with symptoms and AI summary |
+| `medical_history` | Per-patient conditions and treatment status |
+| `assignments` | Doctor assigned to each patient |
 
 ---
 
-## 🧭 Pages
+## Current Limitations (MVP)
 
-| Page | Route | Description |
-|---|---|---|
-| Auth | `/` | Login / Register with role selection |
-| Patient Dashboard | `/` (patient role) | Submit symptoms, get AI analysis |
-| Doctor Dashboard | `/` (doctor role) | Review all cases by urgency |
-
----
-
-## 🤖 AI Flow
-
-```
-Patient fills form
-      ↓
-Frontend → POST /api/analyze → FastAPI
-      ↓
-FastAPI builds prompt → Gemini 1.5 Flash
-      ↓
-Gemini returns: Summary + Urgency (HIGH/MEDIUM/LOW) + Recommendations
-      ↓
-Patient reviews → Submits case → Saved to Supabase
-      ↓
-Doctor sees case card with urgency badge → Updates status
-```
+- No real EHR integration
+- Manual data entry by patient
+- Limited training dataset for AI model
+- No offline mode
 
 ---
 
-## 🎨 Design System
-
-- **Font:** Syne (headings) + DM Sans (body)
-- **Theme:** Blue/Cyan (`cyan-500`, `sky-500`)
-- **Cards:** Glassmorphism — `bg-white/5 backdrop-blur-md border border-white/10`
-- **Dark mode:** Default (toggle available)
-
----
-
-## 📦 Tech Stack
-
-| Layer | Tech |
-|---|---|
-| Frontend | React 18, Vite, Tailwind CSS |
-| Backend | FastAPI, Python 3.11+ |
-| Database | Supabase (PostgreSQL + Auth + RLS) |
-| AI | Google Gemini 1.5 Flash |
-
----
+Built for the AI4India Hackathon, powered by HopeWorks.
