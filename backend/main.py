@@ -1,6 +1,6 @@
 """
 SABHAL — Healthcare AI Backend
-FastAPI + Gemini AI + Supabase
+FastAPI + Groq AI + Supabase
 """
 
 import os
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import google.generativeai as genai
+from groq import Groq
 from supabase import create_client, Client
 
 load_dotenv()
@@ -30,11 +30,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+# Groq
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# Supabase (service role for server-side operations)
+# Supabase
 supabase: Client = create_client(
     os.getenv("SUPABASE_URL"),
     os.getenv("SUPABASE_SERVICE_KEY"),
@@ -52,16 +51,16 @@ class AIRequest(BaseModel):
     allergies: Optional[str] = ""
     symptoms: str
     duration: str
-    severity: str  # mild | moderate | severe
+    severity: str
 
 class AIResponse(BaseModel):
     summary: str
-    urgency_level: str  # LOW | MEDIUM | HIGH
+    urgency_level: str
     recommendations: str
 
 class StatusUpdate(BaseModel):
     case_id: str
-    status: str  # under_review | resolved
+    status: str
 
 # ============================================================
 # ROUTES
@@ -74,9 +73,6 @@ def root():
 
 @app.post("/api/analyze", response_model=AIResponse)
 async def analyze_symptoms(req: AIRequest):
-    """
-    Send patient data to Gemini and return structured AI analysis.
-    """
     prompt = f"""
 You are an experienced medical triage AI assistant.
 Analyze the following patient information and provide a structured medical summary.
@@ -97,7 +93,7 @@ Please respond ONLY in the following exact format (no markdown, no extra text):
 
 SUMMARY: [2-3 sentence clinical summary of the patient's condition]
 URGENCY: [ONE word only — either LOW, MEDIUM, or HIGH]
-RECOMMENDATIONS: [3-5 actionable bullet points starting with • for the doctor, covering immediate steps, tests to consider, and patient advice]
+RECOMMENDATIONS: [3-5 actionable bullet points starting with • for the doctor]
 
 Urgency guidelines:
 - HIGH: Potentially life-threatening, needs immediate attention
@@ -106,17 +102,19 @@ Urgency guidelines:
 """
 
     try:
-        response = gemini_model.generate_content(prompt)
-        text = response.text.strip()
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+        )
+        text = response.choices[0].message.content.strip()
 
         # Parse response
         lines = text.split("\n")
         summary = ""
         urgency = "MEDIUM"
-        recommendations = ""
-
-        current_section = None
         rec_lines = []
+        current_section = None
 
         for line in lines:
             line = line.strip()
@@ -146,14 +144,13 @@ Urgency guidelines:
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Groq API error: {str(e)}")
 
 
 @app.patch("/api/cases/status")
 async def update_case_status(req: StatusUpdate):
-    """
-    Doctor updates a case status (under_review or resolved).
-    """
     valid_statuses = ["under_review", "resolved", "pending"]
     if req.status not in valid_statuses:
         raise HTTPException(status_code=400, detail="Invalid status value")
@@ -172,9 +169,6 @@ async def update_case_status(req: StatusUpdate):
 
 @app.get("/api/cases")
 async def get_all_cases():
-    """
-    Fetch all cases (for doctor dashboard — protected by RLS on Supabase side).
-    """
     try:
         result = (
             supabase.table("cases")

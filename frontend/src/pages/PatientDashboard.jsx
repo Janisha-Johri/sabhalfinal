@@ -317,7 +317,7 @@ export default function PatientDashboard({ user }) {
         </div>
       </GlassCard>
 
-      {/* ── Generate AI Summary ── */}
+      {/* ── Generate Summary ── */}
       <button
         onClick={handleAnalyze}
         disabled={analyzing || !canAnalyze}
@@ -329,12 +329,12 @@ export default function PatientDashboard({ user }) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
-            Analyzing with Gemini AI...
+            Analyzing...
           </>
         ) : (
           <>
             <span>✨</span>
-            Generate AI Health Summary
+            Generate Health Summary
           </>
         )}
       </button>

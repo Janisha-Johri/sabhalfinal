@@ -19,6 +19,7 @@ export async function signUp(email, password, role, fullName) {
     password,
     options: {
       data: { role, full_name: fullName },
+      emailRedirectTo: undefined,
     },
   });
   return { data, error };
